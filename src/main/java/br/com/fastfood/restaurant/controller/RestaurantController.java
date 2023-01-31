@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/restaurants")
@@ -26,6 +28,14 @@ public class RestaurantController {
     @PostMapping
     public Restaurant post(@RequestBody @Valid Restaurant restaurant)
     {
+        return this.repository.save(restaurant);
+    }
+
+    @PutMapping(path = "/{id}")
+    public Restaurant put(@PathVariable UUID id, @RequestBody @Valid Restaurant restaurant)
+    {
+        Restaurant item = this.repository.findById(id).orElseThrow();
+        restaurant.setId(item.getId());
         return this.repository.save(restaurant);
     }
 

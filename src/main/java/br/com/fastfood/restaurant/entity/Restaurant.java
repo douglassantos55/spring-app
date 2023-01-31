@@ -49,4 +49,12 @@ public class Restaurant {
     public void setMenu(List<Menu> menu) {
         this.menu = menu;
     }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 }
