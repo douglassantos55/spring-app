@@ -15,6 +15,7 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotEmpty
     @Size(min = 3, message = "must have at least {min} characters")
     private String name;
 
