@@ -3,6 +3,7 @@ package br.com.fastfood.restaurant;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,6 +22,15 @@ public class ValidationExceptionHandler {
         for (ConstraintViolation<?> error : e.getConstraintViolations()){
             errors.put(error.getPropertyPath().toString(), error.getMessage());
         }
+        return errors;
+    }
+
+    @ResponseBody
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handle2(MethodArgumentNotValidException e) {
+        Map<String, String> errors = new HashMap<>();
+        e.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         return errors;
     }
 }

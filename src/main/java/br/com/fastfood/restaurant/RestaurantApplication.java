@@ -2,12 +2,11 @@ package br.com.fastfood.restaurant;
 
 import br.com.fastfood.restaurant.models.Restaurant;
 import br.com.fastfood.restaurant.models.RestaurantRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,10 +34,8 @@ public class RestaurantApplication {
 		return this.repository.findAll();
 	}
 
-	@GetMapping("/create")
-	public Restaurant create(@RequestParam(name = "name") String name) {
-		Restaurant restaurant = new Restaurant();
-		restaurant.name = name;
+	@PostMapping("/create")
+	public Restaurant create(@RequestBody @Valid Restaurant restaurant) {
 		return this.repository.save(restaurant);
 	}
 }
