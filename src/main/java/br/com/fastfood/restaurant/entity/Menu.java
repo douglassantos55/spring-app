@@ -1,7 +1,6 @@
-package br.com.fastfood.restaurant.models;
+package br.com.fastfood.restaurant.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 

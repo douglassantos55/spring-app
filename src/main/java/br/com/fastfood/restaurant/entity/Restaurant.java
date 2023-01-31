@@ -1,12 +1,10 @@
-package br.com.fastfood.restaurant.models;
+package br.com.fastfood.restaurant.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

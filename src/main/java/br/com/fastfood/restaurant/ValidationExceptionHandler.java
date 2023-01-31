@@ -17,20 +17,14 @@ public class ValidationExceptionHandler {
     @ResponseBody
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handle(ConstraintViolationException e) {
+    public Map<String, String> handleValidationError(MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
-        for (ConstraintViolation<?> error : e.getConstraintViolations()){
-            errors.put(error.getPropertyPath().toString(), error.getMessage());
-        }
-        return errors;
-    }
-
-    @ResponseBody
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handle2(MethodArgumentNotValidException e) {
-        Map<String, String> errors = new HashMap<>();
-        e.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        e.getFieldErrors().forEach(error ->
+                errors.put(
+                        error.getField(),
+                        error.getDefaultMessage()
+                )
+        );
         return errors;
     }
 }
