@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -75,15 +76,31 @@ public class RestaurantController {
     }
 
     @PutMapping(path = "/{id}")
-    public Restaurant put(@PathVariable UUID id, @RequestBody @Valid Restaurant data) {
+    public Restaurant put(@PathVariable UUID id, @Valid Restaurant data, @RequestPart(required = false) MultipartFile logo) throws IOException {
         Restaurant restaurant = this.repository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND)
         );
+
+        if (logo != null) {
+            if (restaurant.getLogoPath() != null) {
+                this.storage.delete(Path.of(restaurant.getLogoPath()));
+            }
+            restaurant.setLogoPath(this.uploadLogoFile(logo));
+        }
+
+        for (int i = 0; i < restaurant.getMenu().size(); i++) {
+            Menu item = restaurant.getMenu().get(i);
+            Menu newItem = data.getMenu().get(i);
+            if ((newItem == null || newItem.getImage() != null) && item.getImgPath() != null) {
+                this.storage.delete(Path.of(item.getImgPath()));
+            }
+        }
 
         restaurant.setName(data.getName());
         restaurant.setDescription(data.getDescription());
         restaurant.setMenu(data.getMenu());
 
+        this.uploadMenuFiles(restaurant.getMenu());
         return this.repository.save(restaurant);
     }
 

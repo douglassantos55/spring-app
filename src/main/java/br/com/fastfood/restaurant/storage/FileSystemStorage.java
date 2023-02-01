@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class FileSystemStorage implements Storage {
@@ -22,5 +24,16 @@ public class FileSystemStorage implements Storage {
 
         file.transferTo(uploadPath);
         return uploadPath.toString();
+    }
+
+    @Override
+    public boolean delete(Path file) {
+        try {
+            Files.delete(file);
+            return true;
+        } catch (IOException e) {
+            System.out.println("could not delete file: " + e.getMessage());
+            return false;
+        }
     }
 }
