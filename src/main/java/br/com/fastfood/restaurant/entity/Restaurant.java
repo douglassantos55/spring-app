@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,8 @@ public class Restaurant {
 
     @NotEmpty
     private String description;
+
+    private String logoPath;
 
     @NotEmpty(message = "must have at least one item")
     @Valid
@@ -57,5 +60,13 @@ public class Restaurant {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getLogoPath() {
+        return logoPath;
+    }
+
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
     }
 }

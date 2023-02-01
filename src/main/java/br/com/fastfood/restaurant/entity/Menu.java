@@ -19,6 +19,8 @@ public class Menu {
     @Min(0)
     private long price;
 
+    private String imgPath;
+
     @ManyToOne(targetEntity = Restaurant.class)
     private Restaurant restaurant;
 
@@ -48,5 +50,13 @@ public class Menu {
 
     public void setRestaurant(Restaurant restaurant) {
         this.restaurant = restaurant;
+    }
+
+    public String getImgPath() {
+        return imgPath;
+    }
+
+    public void setImgPath(String imgPath) {
+        this.imgPath = imgPath;
     }
 }
