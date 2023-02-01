@@ -3,6 +3,7 @@ package br.com.fastfood.restaurant.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -20,6 +21,9 @@ public class Menu {
     private long price;
 
     private String imgPath;
+
+    @Transient
+    private MultipartFile image;
 
     @ManyToOne(targetEntity = Restaurant.class)
     private Restaurant restaurant;
@@ -58,5 +62,13 @@ public class Menu {
 
     public void setImgPath(String imgPath) {
         this.imgPath = imgPath;
+    }
+
+    public MultipartFile getImage() {
+        return image;
+    }
+
+    public void setImage(MultipartFile image) {
+        this.image = image;
     }
 }

@@ -3,8 +3,8 @@ package br.com.fastfood.restaurant.controller;
 import br.com.fastfood.restaurant.entity.Menu;
 import br.com.fastfood.restaurant.entity.Restaurant;
 import br.com.fastfood.restaurant.repository.RestaurantRepository;
+import br.com.fastfood.restaurant.storage.Storage;
 import jakarta.validation.Valid;
-import org.apache.tomcat.util.http.fileupload.FileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,8 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -28,33 +26,37 @@ import java.util.UUID;
 public class RestaurantController {
     private final RestaurantRepository repository;
 
+    private final Storage storage;
+
     @Autowired
-    public RestaurantController(RestaurantRepository repository) {
+    public RestaurantController(RestaurantRepository repository, Storage storage) {
         this.repository = repository;
+        this.storage = storage;
     }
 
     @PostMapping
-    public Restaurant post(@Valid Restaurant restaurant, @RequestPart MultipartFile logo, @RequestPart List<MultipartFile> imgsMenu) throws IOException {
-        Path uploadPath = Paths.get("upload", "restaurant", "logo");
-        UUID logoUUID = UUID.nameUUIDFromBytes(logo.getBytes());
-        Path logoPath = uploadPath.resolve(logoUUID.toString());
-
-        logo.transferTo(logoPath);
-        restaurant.setLogoPath(logoPath.toString());
-
-        List<Menu> itemsMenu = restaurant.getMenu();
-        Path menuUploadPath = Paths.get("upload", "restaurant", "menu");
-
-        for (int i = 0; i < imgsMenu.size(); i++) {
-            MultipartFile imgFile = imgsMenu.get(i);
-            UUID fileUUID = UUID.randomUUID();
-
-            Path filePath = menuUploadPath.resolve(fileUUID.toString());
-            imgFile.transferTo(filePath);
-            itemsMenu.get(i).setImgPath(filePath.toString());
+    public Restaurant post(@Valid Restaurant restaurant, @RequestPart(required = false) MultipartFile logo) throws IOException {
+        if (logo != null) {
+            restaurant.setLogoPath(this.uploadLogoFile(logo));
         }
 
+        this.uploadMenuFiles(restaurant.getMenu());
         return this.repository.save(restaurant);
+    }
+
+    private String uploadLogoFile(MultipartFile file) throws IOException {
+        Path logoUploadPath = Path.of("upload", "restaurant", "logo");
+        return this.storage.store(file, logoUploadPath);
+    }
+
+    private void uploadMenuFiles(List<Menu> menu) throws IOException {
+        Path menuUploadPath = Paths.get("upload", "restaurant", "menu");
+        for (Menu item : menu) {
+            if (item.getImage() != null) {
+                item.setImgPath(this.storage.store(item.getImage(), menuUploadPath));
+                item.setImage(null);
+            }
+        }
     }
 
     @GetMapping(path = "/{id}")
