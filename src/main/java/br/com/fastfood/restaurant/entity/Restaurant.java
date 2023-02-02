@@ -6,12 +6,16 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "restaurants")
 public class Restaurant {
+    public static final Path UPLOAD_PATH = Path.of("upload", "restaurant", "logo");
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -27,8 +31,12 @@ public class Restaurant {
 
     @NotEmpty(message = "must have at least one item")
     @Valid
-    @OneToMany(targetEntity = Menu.class, cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = Menu.class, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menu;
+
+    public Restaurant() {
+        this.menu = new ArrayList<>();
+    }
 
     public String getName() {
         return name;
@@ -51,7 +59,8 @@ public class Restaurant {
     }
 
     public void setMenu(List<Menu> menu) {
-        this.menu = menu;
+        this.menu.clear();
+        this.menu.addAll(menu);
     }
 
     public UUID getId() {
