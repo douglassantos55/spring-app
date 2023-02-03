@@ -1,12 +1,9 @@
 package br.com.fastfood.restaurant.entity;
 
-import br.com.fastfood.restaurant.storage.Storage;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
@@ -25,7 +22,7 @@ public class Menu {
     private String name;
 
     @Min(0)
-    private long price;
+    private int price;
 
     private String imgPath;
 
@@ -52,11 +49,11 @@ public class Menu {
         this.name = name;
     }
 
-    public long getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
