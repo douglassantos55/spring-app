@@ -45,7 +45,6 @@ public class RestaurantController {
         for (Menu item : restaurant.getMenu()) {
             if (item.getImage() != null) {
                 item.setImgPath(this.storage.store(item.getImage(), Menu.UPLOAD_PATH));
-                item.setImage(null);
             }
         }
 
@@ -108,7 +107,6 @@ public class RestaurantController {
         for (Menu item : data.getMenu()) {
             if (item.getImage() != null) {
                 item.setImgPath(this.storage.store(item.getImage(), Menu.UPLOAD_PATH));
-                item.setImage(null);
             }
         }
 

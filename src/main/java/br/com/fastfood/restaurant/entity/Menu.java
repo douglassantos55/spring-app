@@ -1,6 +1,7 @@
 package br.com.fastfood.restaurant.entity;
 
 import br.com.fastfood.restaurant.storage.Storage;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -29,6 +30,7 @@ public class Menu {
     private String imgPath;
 
     @Transient
+    @JsonIgnore
     private MultipartFile image;
 
     @ManyToOne(targetEntity = Restaurant.class)
