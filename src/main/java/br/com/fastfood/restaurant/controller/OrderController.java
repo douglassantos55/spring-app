@@ -3,6 +3,7 @@ package br.com.fastfood.restaurant.controller;
 import br.com.fastfood.restaurant.entity.OrderItem;
 import br.com.fastfood.restaurant.entity.Menu;
 import br.com.fastfood.restaurant.entity.Order;
+import br.com.fastfood.restaurant.entity.Restaurant;
 import br.com.fastfood.restaurant.repository.MenuRepository;
 import br.com.fastfood.restaurant.repository.OrderRepository;
 import br.com.fastfood.restaurant.repository.RestaurantRepository;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -42,12 +44,13 @@ public class OrderController {
     @Transactional
     public Order post(@RequestBody @Valid br.com.fastfood.restaurant.dto.Order orderData) {
         Order order = new Order();
-        order.setItems(new ArrayList<>());
         order.setDiscount(orderData.discount());
-        order.setRestaurant(this.restaurantRepository.findById(orderData.restaurantId()).get());
+
+        Restaurant restaurant = this.restaurantRepository.findById(orderData.restaurantId()).get();
+        order.setRestaurant(restaurant);
 
         for (br.com.fastfood.restaurant.dto.OrderItem item : orderData.items()) {
-            Menu menu = this.menuRepository.findById(item.menuId()).get();
+            Menu menu = this.menuRepository.findByIdAndRestaurant(item.menuId(), restaurant).orElseThrow();
             OrderItem orderItem = OrderItem.create(menu.getName(), menu.getPrice(), item.qty());
             order.addItem(orderItem);
         }
@@ -74,5 +77,10 @@ public class OrderController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable page = PageRequest.ofSize(perPage).withSort(sort);
         return this.orderRepository.findAll(page);
+    }
+
+    @GetMapping("/menus")
+    public Iterable<Menu> menus() {
+        return this.menuRepository.findAll();
     }
 }
