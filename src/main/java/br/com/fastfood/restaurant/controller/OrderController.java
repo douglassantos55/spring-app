@@ -3,13 +3,16 @@ package br.com.fastfood.restaurant.controller;
 import br.com.fastfood.restaurant.entity.OrderItem;
 import br.com.fastfood.restaurant.entity.Menu;
 import br.com.fastfood.restaurant.entity.Order;
-import br.com.fastfood.restaurant.entity.Restaurant;
 import br.com.fastfood.restaurant.repository.MenuRepository;
 import br.com.fastfood.restaurant.repository.OrderRepository;
 import br.com.fastfood.restaurant.repository.RestaurantRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -60,5 +63,16 @@ public class OrderController {
         );
         order.setStatus(Order.Status.Canceled);
         this.orderRepository.save(order);
+    }
+
+    @GetMapping
+    public Page<Order> list(
+            @RequestParam(name = "per_page", defaultValue = "50") int perPage,
+            @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+            @RequestParam(name = "sort_dir", defaultValue = "asc") String sortDirection
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable page = PageRequest.ofSize(perPage).withSort(sort);
+        return this.orderRepository.findAll(page);
     }
 }
