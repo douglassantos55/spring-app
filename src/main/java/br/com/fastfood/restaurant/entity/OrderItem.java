@@ -29,6 +29,9 @@ public class OrderItem {
     @Min(1)
     private int qty;
 
+    public OrderItem() {
+    }
+
     public static OrderItem create(String name, int price, int qty) {
         return new OrderItem(name, price, qty);
     }

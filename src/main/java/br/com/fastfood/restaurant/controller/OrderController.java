@@ -3,17 +3,19 @@ package br.com.fastfood.restaurant.controller;
 import br.com.fastfood.restaurant.entity.OrderItem;
 import br.com.fastfood.restaurant.entity.Menu;
 import br.com.fastfood.restaurant.entity.Order;
+import br.com.fastfood.restaurant.entity.Restaurant;
 import br.com.fastfood.restaurant.repository.MenuRepository;
 import br.com.fastfood.restaurant.repository.OrderRepository;
 import br.com.fastfood.restaurant.repository.RestaurantRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/orders")
@@ -34,6 +36,7 @@ public class OrderController {
     }
 
     @PostMapping
+    @Transactional
     public Order post(@RequestBody @Valid br.com.fastfood.restaurant.dto.Order orderData) {
         Order order = new Order();
         order.setItems(new ArrayList<>());
@@ -47,5 +50,15 @@ public class OrderController {
         }
 
         return this.orderRepository.save(order);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancel(@PathVariable UUID id) {
+        Order order = this.orderRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+        order.setStatus(Order.Status.Canceled);
+        this.orderRepository.save(order);
     }
 }

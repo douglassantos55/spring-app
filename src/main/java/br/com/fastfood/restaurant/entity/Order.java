@@ -13,6 +13,12 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 public class Order {
+    public enum Status {
+        Pending,
+        Paid,
+        Canceled,
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -30,6 +36,12 @@ public class Order {
     @Valid
     @OneToMany(targetEntity = OrderItem.class, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
+
+    private Status status;
+
+    public Order() {
+        this.status = Status.Pending;
+    }
 
     public UUID getId() {
         return id;
@@ -73,5 +85,13 @@ public class Order {
 
     public void addItem(OrderItem item) {
         this.items.add(item);
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return this.status;
     }
 }
