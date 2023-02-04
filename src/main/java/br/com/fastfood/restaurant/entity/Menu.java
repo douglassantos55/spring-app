@@ -1,6 +1,7 @@
 package br.com.fastfood.restaurant.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -30,7 +31,8 @@ public class Menu {
     @JsonIgnore
     private MultipartFile image;
 
-    @ManyToOne(targetEntity = Restaurant.class)
+    @JsonIgnoreProperties({ "menu" })
+    @ManyToOne(targetEntity = Restaurant.class, optional = false)
     private Restaurant restaurant;
 
     public UUID getId() {
@@ -59,6 +61,10 @@ public class Menu {
 
     public void setRestaurant(Restaurant restaurant) {
         this.restaurant = restaurant;
+    }
+
+    public Restaurant getRestaurant() {
+        return this.restaurant;
     }
 
     public String getImgPath() {

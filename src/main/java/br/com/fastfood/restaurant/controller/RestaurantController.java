@@ -18,8 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,10 +37,12 @@ public class RestaurantController {
     @PostMapping
     public Restaurant post(@Valid Restaurant restaurant, @RequestPart(required = false) MultipartFile logo) throws IOException {
         if (logo != null) {
-            restaurant.setLogoPath(this.storage.store(logo, Restaurant.UPLOAD_PATH));
+            restaurant.setLogo(this.storage.store(logo, Restaurant.UPLOAD_PATH));
         }
 
         for (Menu item : restaurant.getMenu()) {
+            item.setRestaurant(restaurant);
+
             if (item.getImage() != null) {
                 item.setImgPath(this.storage.store(item.getImage(), Menu.UPLOAD_PATH));
             }
@@ -66,8 +66,8 @@ public class RestaurantController {
                 new ResponseStatusException(HttpStatus.NOT_FOUND)
         );
 
-        if (restaurant.getLogoPath() != null) {
-            this.storage.delete(Path.of(restaurant.getLogoPath()));
+        if (restaurant.getLogo() != null) {
+            this.storage.delete(Path.of(restaurant.getLogo()));
         }
 
         for (Menu item : restaurant.getMenu()) {
@@ -87,10 +87,10 @@ public class RestaurantController {
         );
 
         if (logo != null) {
-            if (restaurant.getLogoPath() != null) {
-                this.storage.delete(Path.of(restaurant.getLogoPath()));
+            if (restaurant.getLogo() != null) {
+                this.storage.delete(Path.of(restaurant.getLogo()));
             }
-            restaurant.setLogoPath(this.storage.store(logo, Restaurant.UPLOAD_PATH));
+            restaurant.setLogo(this.storage.store(logo, Restaurant.UPLOAD_PATH));
         }
 
         for (int i = 0; i < restaurant.getMenu().size(); i++) {
@@ -108,11 +108,12 @@ public class RestaurantController {
             if (item.getImage() != null) {
                 item.setImgPath(this.storage.store(item.getImage(), Menu.UPLOAD_PATH));
             }
+            item.setRestaurant(restaurant);
         }
 
         restaurant.setName(data.getName());
-        restaurant.setDescription(data.getDescription());
         restaurant.setMenu(data.getMenu());
+        restaurant.setDescription(data.getDescription());
 
         return this.repository.save(restaurant);
     }

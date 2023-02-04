@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,16 +26,12 @@ public class Restaurant {
     @NotEmpty
     private String description;
 
-    private String logoPath;
+    private String logo;
 
     @NotEmpty(message = "must have at least one item")
     @Valid
     @OneToMany(targetEntity = Menu.class, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Menu> menu;
-
-    public Restaurant() {
-        this.menu = new ArrayList<>();
-    }
+    private List<Menu> menu = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -58,24 +53,20 @@ public class Restaurant {
         return menu;
     }
 
-    public void setMenu(List<Menu> menu) {
-        this.menu.clear();
-        this.menu.addAll(menu);
-    }
-
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public String getLogo() {
+        return logo;
     }
 
-    public String getLogoPath() {
-        return logoPath;
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 
-    public void setLogoPath(String logoPath) {
-        this.logoPath = logoPath;
+    public void setMenu(List<Menu> menu) {
+        this.menu.clear();
+        this.menu.addAll(menu);
     }
 }
