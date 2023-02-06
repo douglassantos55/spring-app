@@ -4,6 +4,7 @@ import br.com.fastfood.restaurant.entity.OrderItem;
 import br.com.fastfood.restaurant.entity.Menu;
 import br.com.fastfood.restaurant.entity.Order;
 import br.com.fastfood.restaurant.entity.Restaurant;
+import br.com.fastfood.restaurant.event.OrderPlacedEvent;
 import br.com.fastfood.restaurant.payment.InvalidPaymentMethodException;
 import br.com.fastfood.restaurant.payment.PaymentMethod;
 import br.com.fastfood.restaurant.payment.PaymentMethodBuilder;
@@ -13,6 +14,7 @@ import br.com.fastfood.restaurant.repository.RestaurantRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +32,16 @@ public class OrderController {
     private final RestaurantRepository restaurantRepository;
     private final MenuRepository menuRepository;
 
+    private final ApplicationEventPublisher publisher;
+
     @Autowired
     public OrderController(
             OrderRepository orderRepository,
             RestaurantRepository restaurantRepository,
-            MenuRepository menuRepository
+            MenuRepository menuRepository,
+            ApplicationEventPublisher publisher
     ) {
+        this.publisher = publisher;
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
         this.restaurantRepository = restaurantRepository;
@@ -57,13 +63,7 @@ public class OrderController {
             order.addItem(orderItem);
         }
 
-        try {
-            PaymentMethod method = PaymentMethodBuilder.get(order.getPaymentMethod());
-            method.processPayment(order);
-        } catch (InvalidPaymentMethodException e) {
-            System.out.println("Payment method '" + order.getPaymentMethod() + "' not found");
-        }
-
+        this.publisher.publishEvent(new OrderPlacedEvent(order));
         return this.orderRepository.save(order);
     }
 
