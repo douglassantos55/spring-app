@@ -14,6 +14,14 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 public class Order {
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public enum Status {
         Pending,
         Paid,
@@ -39,6 +47,8 @@ public class Order {
     private List<OrderItem> items;
 
     private Status status;
+
+    private String paymentMethod;
 
     public Order() {
         this.status = Status.Pending;
