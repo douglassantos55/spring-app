@@ -25,6 +25,9 @@ public class Menu {
     @Min(0)
     private int price;
 
+    @Min(0)
+    private int stock;
+
     private String imgPath;
 
     @Transient
@@ -81,5 +84,17 @@ public class Menu {
 
     public void setImage(MultipartFile image) {
         this.image = image;
+    }
+
+    public void reduceStock(int qty) {
+        this.setStock(this.getStock() - qty);
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 }

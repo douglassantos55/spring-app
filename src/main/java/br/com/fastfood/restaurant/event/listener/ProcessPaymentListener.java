@@ -1,6 +1,7 @@
-package br.com.fastfood.restaurant.event;
+package br.com.fastfood.restaurant.event.listener;
 
 import br.com.fastfood.restaurant.entity.Order;
+import br.com.fastfood.restaurant.event.OrderPlacedEvent;
 import br.com.fastfood.restaurant.payment.InvalidPaymentMethodException;
 import br.com.fastfood.restaurant.payment.PaymentMethod;
 import br.com.fastfood.restaurant.payment.PaymentMethodBuilder;
