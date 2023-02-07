@@ -40,16 +40,26 @@ public class LessThanValidator implements ConstraintValidator<LessThanEquals, Ob
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         try {
             Method getEntityId = value.getClass().getDeclaredMethod(this.id);
-            Object entity = this.repository.findById((UUID) getEntityId.invoke(value)).get();
+            UUID entityId = (UUID) getEntityId.invoke(value);
 
+            context.disableDefaultConstraintViolation();
+
+            if (!this.repository.existsById(entityId)) {
+                context.buildConstraintViolationWithTemplate("invalid value")
+                        .addPropertyNode(this.id)
+                        .addConstraintViolation();
+
+                return false;
+            }
+
+            Object entity = this.repository.findById(entityId).get();
             Method getSource = entity.getClass().getDeclaredMethod(this.source);
             Method getField = value.getClass().getDeclaredMethod(this.field);
 
             Comparable source = (Comparable) getSource.invoke(entity);
             Comparable field = (Comparable) getField.invoke(value);
 
-            context.disableDefaultConstraintViolation();
-            String template = "must be less than equals to " + source.toString();
+            String template = "must be less than or equal to " + source.toString();
 
             context.buildConstraintViolationWithTemplate(template)
                     .addPropertyNode(this.field)
@@ -57,8 +67,7 @@ public class LessThanValidator implements ConstraintValidator<LessThanEquals, Ob
 
             return field.compareTo(source) <= 0;
         } catch (Throwable e) {
-            System.out.println(e.getMessage());
+            return false;
         }
-        return false;
     }
 }

@@ -14,7 +14,6 @@ import java.util.UUID;
 @LessThanEquals(entity = Menu.class, id="menuId", field = "qty", source = "getStock", groups = Dependant.class)
 public record OrderItem(
         @NotNull
-        @ExistsConstraint(entityTarget = Menu.class)
         UUID menuId,
 
         @Min(1)
