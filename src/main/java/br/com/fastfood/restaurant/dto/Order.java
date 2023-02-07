@@ -1,9 +1,9 @@
 package br.com.fastfood.restaurant.dto;
 
 import br.com.fastfood.restaurant.entity.Restaurant;
-import br.com.fastfood.restaurant.validation.CreditPayment;
 import br.com.fastfood.restaurant.validation.OrderSequenceProvider;
 import br.com.fastfood.restaurant.validation.constraint.ExistsConstraint;
+import br.com.fastfood.restaurant.validation.group.CreditPayment;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.CreditCardNumber;

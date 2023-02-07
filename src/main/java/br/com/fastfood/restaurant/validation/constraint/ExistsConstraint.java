@@ -11,7 +11,6 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExistsConstraint {
-
     String message() default "{br.com.fastfood.restaurant.validation.constraint.ExistsConstraint.message}";
 
     Class<?>[] groups() default {};

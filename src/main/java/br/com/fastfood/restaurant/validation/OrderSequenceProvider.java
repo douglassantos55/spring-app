@@ -1,6 +1,7 @@
 package br.com.fastfood.restaurant.validation;
 
 import br.com.fastfood.restaurant.dto.Order;
+import br.com.fastfood.restaurant.validation.group.CreditPayment;
 import org.hibernate.validator.spi.group.DefaultGroupSequenceProvider;
 
 import java.util.ArrayList;
