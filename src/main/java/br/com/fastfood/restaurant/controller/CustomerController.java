@@ -7,7 +7,11 @@ import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/customers")
@@ -21,6 +25,20 @@ public class CustomerController {
 
     @PostMapping
     public Customer post(@RequestBody @Valid Customer customer) {
+        return this.repository.save(customer);
+    }
+
+    @PutMapping("/{id}")
+    public Customer put(@PathVariable UUID id, @RequestBody @Valid Customer data) {
+        Customer customer = this.repository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        customer.setEmail(data.getEmail());
+        customer.setName(data.getName());
+        customer.setBillingAddress(data.getBillingAddress());
+        customer.setDeliveryAddress(data.getDeliveryAddress());
+
         return this.repository.save(customer);
     }
 

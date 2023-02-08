@@ -30,25 +30,12 @@ public class Customer {
     @OneToOne(cascade = CascadeType.ALL)
     private Address deliveryAddress;
 
-    public Address getBillingAddress() {
-        return this.billingAddress;
-    }
-
-    /**
-     * Returns customer's delivery address.
-     * Defaults to billing address if not specified
-     *
-     * @return Address
-     */
-    public Address getDeliveryAddress() {
-        if (this.deliveryAddress == null) {
-            return this.getBillingAddress();
-        }
-        return this.deliveryAddress;
-    }
-
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -65,5 +52,30 @@ public class Customer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Address getBillingAddress() {
+        return this.billingAddress;
+    }
+
+    public void setBillingAddress(Address address) {
+        this.billingAddress = address;
+    }
+
+    /**
+     * Returns customer's delivery address.
+     * Defaults to billing address if not specified
+     *
+     * @return Address
+     */
+    public Address getDeliveryAddress() {
+        if (this.deliveryAddress == null) {
+            return this.getBillingAddress();
+        }
+        return this.deliveryAddress;
+    }
+
+    public void setDeliveryAddress(Address address) {
+        this.deliveryAddress = address;
     }
 }
