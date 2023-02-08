@@ -52,12 +52,54 @@ public class CustomerTests {
     }
 
     @Test
-    public void createCustomer() throws Exception {
+    public void createValidCustomer() throws Exception {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"15335005\"}}")
         ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void updateNonExistingCustomer() throws Exception {
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.put("/customers/" + UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"15335005\"}}")
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    public void updateInvalidId() throws Exception {
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.put("/customers/somethhingotherthanuuid")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"15335005\"}}")
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    public void updateInvalidData() throws Exception {
+        Customer customer = this.createCustomer();
+
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.put("/customers/" + customer.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"\",\"email\":\"emailatgmaildotcom\",\"billingAddress\":{\"street\":\"\",\"number\":\"\",\"zipcode\":\"\"}}")
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    public void updateValidData() throws Exception {
+        Customer customer = this.createCustomer();
+
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.put("/customers/" + customer.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"james smith\",\"email\":\"james@email.com\",\"billingAddress\":{\"street\":\"9th avenue\",\"number\":\"325\",\"zipcode\":\"03930-250\"}}")
+        )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json("{\"id\":\"" + customer.getId() + "\",\"name\":\"james smith\",\"email\":\"james@email.com\",\"billingAddress\":{\"street\":\"9th avenue\",\"number\":\"325\",\"zipcode\":\"03930-250\"}}"));
     }
 
     @Test
@@ -74,6 +116,12 @@ public class CustomerTests {
 
     @Test
     void deleteExistingCustomer() throws Exception {
+        Customer customer = this.createCustomer();
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/customers/" + customer.getId()))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    private Customer createCustomer() throws Exception {
         MvcResult result = this.mockMvc.perform(
                 MockMvcRequestBuilders.post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,9 +129,6 @@ public class CustomerTests {
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         ObjectMapper mapper = new ObjectMapper();
-        Customer customer = mapper.readValue(result.getResponse().getContentAsString(), Customer.class);
-
-        this.mockMvc.perform(MockMvcRequestBuilders.delete("/customers/" + customer.getId()))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+        return mapper.readValue(result.getResponse().getContentAsString(), Customer.class);
     }
 }
