@@ -42,6 +42,15 @@ public class CustomerController {
         return this.repository.save(customer);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable UUID id) {
+        if (!this.repository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        this.repository.deleteById(id);
+    }
+
     @GetMapping
     public Page<Customer> list(
             @Min(1) @RequestParam(value = "page", defaultValue = "1") int page,
