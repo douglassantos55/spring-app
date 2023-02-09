@@ -1,13 +1,8 @@
 package br.com.fastfood.restaurant.controller;
 
-import br.com.fastfood.restaurant.entity.OrderItem;
-import br.com.fastfood.restaurant.entity.Menu;
-import br.com.fastfood.restaurant.entity.Order;
-import br.com.fastfood.restaurant.entity.Restaurant;
+import br.com.fastfood.restaurant.entity.*;
 import br.com.fastfood.restaurant.event.OrderPlacedEvent;
-import br.com.fastfood.restaurant.payment.InvalidPaymentMethodException;
-import br.com.fastfood.restaurant.payment.PaymentMethod;
-import br.com.fastfood.restaurant.payment.PaymentMethodBuilder;
+import br.com.fastfood.restaurant.repository.CustomerRepository;
 import br.com.fastfood.restaurant.repository.MenuRepository;
 import br.com.fastfood.restaurant.repository.OrderRepository;
 import br.com.fastfood.restaurant.repository.RestaurantRepository;
@@ -28,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping(path = "/orders")
 public class OrderController {
+    private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuRepository menuRepository;
@@ -39,11 +35,13 @@ public class OrderController {
             OrderRepository orderRepository,
             RestaurantRepository restaurantRepository,
             MenuRepository menuRepository,
+            CustomerRepository customerRepository,
             ApplicationEventPublisher publisher
     ) {
         this.publisher = publisher;
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
+        this.customerRepository = customerRepository;
         this.restaurantRepository = restaurantRepository;
     }
 
@@ -56,6 +54,9 @@ public class OrderController {
 
         Restaurant restaurant = this.restaurantRepository.findById(orderData.restaurantId()).get();
         order.setRestaurant(restaurant);
+
+        Customer customer = this.customerRepository.findById(orderData.customerId()).get();
+        order.setCustomer(customer);
 
         for (br.com.fastfood.restaurant.dto.OrderItem item : orderData.items()) {
             Menu menu = this.menuRepository.findByIdAndRestaurant(item.menuId(), restaurant).orElseThrow();

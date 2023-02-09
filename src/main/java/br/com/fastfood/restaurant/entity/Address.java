@@ -24,6 +24,15 @@ public class Address {
         return id;
     }
 
+    public Address() {
+    }
+
+    public Address(String street, String number, String zipcode) {
+        this.street = street;
+        this.number = number;
+        this.zipcode = zipcode;
+    }
+
     public String getStreet() {
         return street;
     }

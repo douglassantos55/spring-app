@@ -67,6 +67,9 @@ public class Restaurant {
 
     public void setMenu(List<Menu> menu) {
         this.menu.clear();
+        for (Menu item : menu) {
+            item.setRestaurant(this);
+        }
         this.menu.addAll(menu);
     }
 }

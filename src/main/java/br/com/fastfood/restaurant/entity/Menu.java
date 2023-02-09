@@ -38,6 +38,14 @@ public class Menu {
     @ManyToOne(targetEntity = Restaurant.class, optional = false)
     private Restaurant restaurant;
 
+    public Menu() {}
+
+    public Menu(String name, int price, int stock) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+    }
+
     public UUID getId() {
         return id;
     }

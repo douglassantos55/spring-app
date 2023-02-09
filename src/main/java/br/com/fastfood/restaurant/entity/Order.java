@@ -1,6 +1,7 @@
 package br.com.fastfood.restaurant.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -41,6 +42,9 @@ public class Order {
     @ManyToOne(targetEntity = Restaurant.class, cascade = CascadeType.ALL)
     private Restaurant restaurant;
 
+    @ManyToOne(targetEntity = Customer.class, optional = false)
+    private Customer customer;
+
     @NotEmpty
     @Valid
     @OneToMany(targetEntity = OrderItem.class, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -59,6 +63,7 @@ public class Order {
         return id;
     }
 
+    @JsonProperty
     public int getTotal() {
         int total = -this.discount;
         for (OrderItem item : this.getItems()) {
@@ -81,6 +86,14 @@ public class Order {
 
     public void setRestaurant(Restaurant restaurant) {
         this.restaurant = restaurant;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public List<OrderItem> getItems() {

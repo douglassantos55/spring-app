@@ -1,5 +1,6 @@
 package br.com.fastfood.restaurant.dto;
 
+import br.com.fastfood.restaurant.entity.Customer;
 import br.com.fastfood.restaurant.entity.Restaurant;
 import br.com.fastfood.restaurant.validation.OrderSequenceProvider;
 import br.com.fastfood.restaurant.validation.constraint.ExistsConstraint;
@@ -17,6 +18,10 @@ public record Order(
         @NotNull
         @ExistsConstraint(entityTarget = Restaurant.class)
         UUID restaurantId,
+
+        @NotNull
+        @ExistsConstraint(entityTarget = Customer.class)
+        UUID customerId,
 
         @NotEmpty
         String paymentMethod,
