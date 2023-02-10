@@ -44,7 +44,7 @@ public class OrderTests {
         customer.setName("john doe");
         customer.setEmail("john@email.com");
 
-        customer.setBillingAddress(new Address("North Av", "325", "32501-032"));
+        customer.setBillingAddress(new Address("Campinas, São Paulo, SP", "325", "32501-032"));
         return this.customerRepository.save(customer);
     }
 
@@ -95,5 +95,26 @@ public class OrderTests {
 
         Order order = mapper.readValue(result.getResponse().getContentAsString(), Order.class);
         assertEquals("should save customer", order.getCustomer().getId(), customer.getId());
+    }
+
+    @Test
+    public void calculatesDeliveryValue() throws Exception {
+        Customer customer = this.createCustomer();
+        Restaurant restaurant = this.createRestaurant();
+        Menu item = restaurant.getMenu().get(0);
+
+        MvcResult result = this.mock.perform(
+                MockMvcRequestBuilders.post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"customerId\":\"" + customer.getId() + "\",\"restaurantId\":\"" + restaurant.getId() + "\",\"paymentMethod\":\"cash\",\"items\":[{\"qty\":10,\"menuId\":\"" + item.getId() + "\"}],\"discount\":5}")
+
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        // disable so that our totals don't blow everything up
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        Order order = mapper.readValue(result.getResponse().getContentAsString(), Order.class);
+        assertNotEquals("should have delivery value", 0, order.getDeliveryValue());
     }
 }

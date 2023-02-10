@@ -54,6 +54,8 @@ public class Order {
 
     private String paymentMethod;
 
+    private int deliveryValue;
+
     public Order() {
         this.status = Status.Pending;
         this.items = new ArrayList<>();
@@ -114,5 +116,13 @@ public class Order {
 
     public Status getStatus() {
         return this.status;
+    }
+
+    public int getDeliveryValue() {
+        return this.deliveryValue;
+    }
+
+    public void setDeliveryValue(int deliveryValue) {
+        this.deliveryValue = deliveryValue;
     }
 }
