@@ -1,6 +1,9 @@
 package br.com.fastfood.restaurant.service.delivery;
 
+import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -24,5 +27,10 @@ public class DeliveryConfiguration {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    @Bean
+    public Channel channel() {
+        return ManagedChannelBuilder.forAddress(this.getUrl(), this.getPort()).usePlaintext().build();
     }
 }
