@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 @SpringBootTest
+@ContextConfiguration(classes = Config.class)
 public class GrpcDeliveryTests {
     private GrpcDeliveryService service;
 
