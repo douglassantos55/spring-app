@@ -1,4 +1,4 @@
 package br.com.fastfood.restaurant.validation.group;
 
-public interface Dependant {
+public interface Dependent {
 }
