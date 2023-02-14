@@ -1,6 +1,7 @@
 package br.com.fastfood.restaurant.controller;
 
 import br.com.fastfood.restaurant.entity.*;
+import br.com.fastfood.restaurant.event.OrderCanceledEvent;
 import br.com.fastfood.restaurant.event.OrderPlacedEvent;
 import br.com.fastfood.restaurant.repository.CustomerRepository;
 import br.com.fastfood.restaurant.repository.MenuRepository;
@@ -76,6 +77,8 @@ public class OrderController {
         );
         order.setStatus(Order.Status.Canceled);
         this.orderRepository.save(order);
+
+        this.publisher.publishEvent(new OrderCanceledEvent(order));
     }
 
     @GetMapping

@@ -95,7 +95,11 @@ public class Menu {
     }
 
     public void reduceStock(int qty) {
-        this.setStock(this.getStock() - qty);
+        this.stock -= qty;
+    }
+
+    public void restoreStock(int qty) {
+        this.stock += qty;
     }
 
     public int getStock() {

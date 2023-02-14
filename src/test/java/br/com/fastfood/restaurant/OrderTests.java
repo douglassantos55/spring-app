@@ -2,23 +2,23 @@ package br.com.fastfood.restaurant;
 
 import br.com.fastfood.restaurant.entity.*;
 import br.com.fastfood.restaurant.repository.CustomerRepository;
+import br.com.fastfood.restaurant.repository.MenuRepository;
+import br.com.fastfood.restaurant.repository.OrderRepository;
 import br.com.fastfood.restaurant.repository.RestaurantRepository;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.grpc.testing.GrpcCleanupRule;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
@@ -37,6 +37,12 @@ public class OrderTests {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private MenuRepository menuRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @BeforeEach
     public void setup(WebApplicationContext context) {
@@ -122,5 +128,41 @@ public class OrderTests {
 
         Order order = mapper.readValue(result.getResponse().getContentAsString(), Order.class);
         assertNotEquals("should have delivery value", 0, order.getDeliveryValue());
+    }
+
+    @Test
+    public void reducesStock() throws Exception {
+        Customer customer = this.createCustomer();
+        Restaurant restaurant = this.createRestaurant();
+        Menu item = restaurant.getMenu().get(0);
+
+        int originalStock = item.getStock();
+
+        MvcResult result = this.mock.perform(
+                MockMvcRequestBuilders.post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"customerId\":\"" + customer.getId() + "\",\"restaurantId\":\"" + restaurant.getId() + "\",\"paymentMethod\":\"cash\",\"items\":[{\"qty\":10,\"menuId\":\"" + item.getId() + "\"}],\"discount\":5}")
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        // reload instance from db
+        item = this.menuRepository.findById(item.getId()).get();
+
+        assertEquals("should reduce stock", originalStock-10, item.getStock());
+    }
+
+    @Test
+    @Transactional
+    public void restoreStock() throws Exception {
+        Order order = this.orderRepository.findAll().iterator().next();
+        OrderItem orderItem = order.getItems().get(0);
+        Menu item = order.getRestaurant().getMenu().get(0);
+
+        int original = item.getStock();
+        this.mock.perform(MockMvcRequestBuilders.put("/orders/" + order.getId()));
+
+        // reload from db
+        item = this.menuRepository.findById(item.getId()).get();
+
+        assertEquals("should restore stock", original + orderItem.getQty(), item.getStock());
     }
 }
