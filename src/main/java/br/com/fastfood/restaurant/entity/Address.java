@@ -1,5 +1,6 @@
 package br.com.fastfood.restaurant.entity;
 
+import br.com.fastfood.restaurant.validation.constraint.Zipcode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -18,6 +19,7 @@ public class Address {
     private String number;
 
     @NotEmpty
+    @Zipcode
     private String zipcode;
 
     public UUID getId() {

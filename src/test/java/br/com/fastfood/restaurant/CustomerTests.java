@@ -5,13 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -60,11 +54,20 @@ public class CustomerTests {
     }
 
     @Test
+    public void createCustomerInvalidZipcode() throws Exception {
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.post("/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"rua abc\",\"number\":\"155\",\"zipcode\":\"00000000\"}}")
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
     public void createValidCustomer() throws Exception {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"15335005\"}}")
+                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"01001000\"}}")
         ).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -73,7 +76,7 @@ public class CustomerTests {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.put("/customers/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"15335005\"}}")
+                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"01001000\"}}")
         ).andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
@@ -82,7 +85,7 @@ public class CustomerTests {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.put("/customers/somethhingotherthanuuid")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"15335005\"}}")
+                        .content("{\"name\":\"john doe\",\"email\":\"email@gmail.com\",\"billingAddress\":{\"street\":\"Avenue\",\"number\":\"5153\",\"zipcode\":\"01001000\"}}")
         ).andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -104,10 +107,10 @@ public class CustomerTests {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.put("/customers/" + customer.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"james smith\",\"email\":\"james@email.com\",\"billingAddress\":{\"street\":\"9th avenue\",\"number\":\"325\",\"zipcode\":\"03930-250\"}}")
+                        .content("{\"name\":\"james smith\",\"email\":\"james@email.com\",\"billingAddress\":{\"street\":\"9th avenue\",\"number\":\"325\",\"zipcode\":\"01001000\"}}")
         )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().json("{\"id\":\"" + customer.getId() + "\",\"name\":\"james smith\",\"email\":\"james@email.com\",\"billingAddress\":{\"street\":\"9th avenue\",\"number\":\"325\",\"zipcode\":\"03930-250\"}}"));
+                .andExpect(MockMvcResultMatchers.content().json("{\"id\":\"" + customer.getId() + "\",\"name\":\"james smith\",\"email\":\"james@email.com\",\"billingAddress\":{\"street\":\"9th avenue\",\"number\":\"325\",\"zipcode\":\"01001000\"}}"));
     }
 
     @Test
@@ -133,7 +136,7 @@ public class CustomerTests {
         MvcResult result = this.mockMvc.perform(
                 MockMvcRequestBuilders.post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"John doe\",\"email\":\"johndoe@email.com\",\"billingAddress\":{\"zipcode\":\"153533\",\"street\":\"Avenue\",\"number\":\"51353\"}}")
+                        .content("{\"name\":\"John doe\",\"email\":\"johndoe@email.com\",\"billingAddress\":{\"zipcode\":\"01001000\",\"street\":\"Avenue\",\"number\":\"51353\"}}")
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         ObjectMapper mapper = new ObjectMapper();

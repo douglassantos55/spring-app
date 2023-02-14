@@ -56,7 +56,7 @@ public class OrderTests {
         customer.setName("john doe");
         customer.setEmail("john@email.com");
 
-        customer.setBillingAddress(new Address("Campinas, São Paulo, SP", "325", "32501-032"));
+        customer.setBillingAddress(new Address("Campinas, São Paulo, SP", "325", "13845-000"));
         return this.customerRepository.save(customer);
     }
 
