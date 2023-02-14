@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.util.AssertionErrors.*;
 
 @SpringBootTest
@@ -164,5 +166,35 @@ public class OrderTests {
         item = this.menuRepository.findById(item.getId()).get();
 
         assertEquals("should restore stock", original + orderItem.getQty(), item.getStock());
+    }
+
+    @Test
+    @Transactional
+    public void sendOrderCanceledEmail() throws Exception {
+        Order order = new Order();
+        order.setCustomer(this.createCustomer());
+        order.setRestaurant(this.createRestaurant());
+
+        this.orderRepository.save(order);
+
+        this.mock.perform(MockMvcRequestBuilders.put("/orders/" + order.getId()));
+        JavaMailSender sender = this.mock.getDispatcherServlet().getWebApplicationContext().getBean(JavaMailSender.class);
+        verify(sender).send(sender.createMimeMessage());
+    }
+
+    @Test
+    public void sendOrderPlacedEmail() throws Exception {
+        Customer customer = this.createCustomer();
+        Restaurant restaurant = this.createRestaurant();
+        Menu item = restaurant.getMenu().get(0);
+
+        MvcResult result = this.mock.perform(
+                MockMvcRequestBuilders.post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"customerId\":\"" + customer.getId() + "\",\"restaurantId\":\"" + restaurant.getId() + "\",\"paymentMethod\":\"cash\",\"items\":[{\"qty\":10,\"menuId\":\"" + item.getId() + "\"}],\"discount\":5}")
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        JavaMailSender sender = this.mock.getDispatcherServlet().getWebApplicationContext().getBean(JavaMailSender.class);
+        verify(sender).send(sender.createMimeMessage());
     }
 }
