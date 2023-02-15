@@ -1,7 +1,7 @@
 package br.com.fastfood.restaurant.service.delivery;
 
 import br.com.fastfood.restaurant.entity.OrderItem;
-import io.grpc.Channel;
+import io.grpc.ManagedChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ public class GrpcDeliveryService implements DeliveryService {
     private DeliveryGrpc.DeliveryBlockingStub client;
 
     @Autowired
-    public GrpcDeliveryService(Channel channel) {
+    public GrpcDeliveryService(ManagedChannel channel) {
         this.client = DeliveryGrpc.newBlockingStub(channel);
     }
 
