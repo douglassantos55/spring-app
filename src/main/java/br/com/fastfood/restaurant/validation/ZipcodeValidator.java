@@ -5,11 +5,13 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+@Component
 public class ZipcodeValidator implements ConstraintValidator<Zipcode, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
