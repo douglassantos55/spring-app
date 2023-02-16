@@ -54,7 +54,9 @@ public class OrderMailListener {
 
             helper.setTo(order.getCustomer().getEmail());
             helper.setSubject("Your order was canceled");
-            helper.setText(String.format("Hello, %s. Your order %s was canceled.", order.getCustomer().getName(), order.getId()), true);
+
+            Template template = this.cfg.getTemplate("email/order_canceled.ftl");
+            helper.setText(FreeMarkerTemplateUtils.processTemplateIntoString(template, order), true);
 
             this.sender.send(message);
         } catch (Exception e) {
