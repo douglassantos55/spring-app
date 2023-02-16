@@ -65,8 +65,10 @@ public class OrderController {
             order.addItem(orderItem);
         }
 
+        this.orderRepository.save(order);
         this.publisher.publishEvent(new OrderPlacedEvent(order));
-        return this.orderRepository.save(order);
+
+        return order;
     }
 
     @PutMapping("/{id}")
