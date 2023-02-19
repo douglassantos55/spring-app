@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,13 +19,17 @@ import java.util.UUID;
 public class CustomerController {
     private final CustomerRepository repository;
 
+    private final PasswordEncoder encoder;
+
     @Autowired
-    public CustomerController(CustomerRepository repository) {
+    public CustomerController(CustomerRepository repository, PasswordEncoder encoder) {
         this.repository = repository;
+        this.encoder = encoder;
     }
 
     @PostMapping
     public Customer post(@RequestBody @Valid Customer customer) {
+        customer.setPassword(this.encoder.encode(customer.getPassword()));
         return this.repository.save(customer);
     }
 

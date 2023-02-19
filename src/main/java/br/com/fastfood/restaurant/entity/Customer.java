@@ -5,8 +5,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "customers")
@@ -21,6 +23,11 @@ public class Customer {
     @Email
     private String email;
 
+    @NotEmpty
+    private String password;
+
+    private List<String> authorities;
+
     @Valid
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
@@ -29,6 +36,11 @@ public class Customer {
     @Valid
     @OneToOne(cascade = CascadeType.ALL)
     private Address deliveryAddress;
+
+    public Customer() {
+        this.authorities = new ArrayList<>();
+        this.authorities.add("ROLE_CUSTOMER");
+    }
 
     public UUID getId() {
         return id;
@@ -77,5 +89,25 @@ public class Customer {
 
     public void setDeliveryAddress(Address address) {
         this.deliveryAddress = address;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setAuthorities(List<String> authorities) {
+        this.authorities = authorities;
+    }
+
+    public Set<GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        for (String authority : this.authorities) {
+            authorities.add(new SimpleGrantedAuthority(authority));
+        }
+        return authorities;
     }
 }
