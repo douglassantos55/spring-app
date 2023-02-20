@@ -9,6 +9,8 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -18,11 +20,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -34,6 +37,11 @@ public class SecurityConfig {
 
     @Value("${jwt.private_key}")
     private RSAPrivateKey priv;
+    private final br.com.fastfood.restaurant.repository.CustomerRepository customerRepository;
+
+    public SecurityConfig(br.com.fastfood.restaurant.repository.CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
 
     @Bean
     public JwtEncoder jwtEncoder() {
@@ -53,14 +61,30 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsManager userDetailsManager(DataSource dataSource) {
+    public CustomerRepository repository(DataSource dataSource) {
         return new CustomerRepository(dataSource);
     }
 
+    public AuthenticationProvider customersProvider(CustomerRepository repository) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(repository);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    public AuthenticationProvider adminProvider(DataSource dataSource) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(new JdbcUserDetailsManager(dataSource));
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomerRepository repository, DataSource dataSource) throws Exception {
         return http
                 .authorizeHttpRequests()
+                .requestMatchers("/customers")
+                .hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -69,6 +93,8 @@ public class SecurityConfig {
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .securityContext(context -> context.securityContextRepository(new NullSecurityContextRepository()))
+                .authenticationProvider(customersProvider(repository))
+                .authenticationProvider(adminProvider(dataSource))
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler())

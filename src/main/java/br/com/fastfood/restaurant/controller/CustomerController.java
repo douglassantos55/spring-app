@@ -44,6 +44,10 @@ public class CustomerController {
         customer.setBillingAddress(data.getBillingAddress());
         customer.setDeliveryAddress(data.getDeliveryAddress());
 
+        if (!data.getPassword().isEmpty()) {
+            customer.setPassword(this.encoder.encode(data.getPassword()));
+        }
+
         return this.repository.save(customer);
     }
 
